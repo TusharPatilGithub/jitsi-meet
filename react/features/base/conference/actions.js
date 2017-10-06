@@ -4,7 +4,6 @@ import { JitsiConferenceEvents } from '../lib-jitsi-meet';
 import { setAudioMuted, setVideoMuted } from '../media';
 import {
     dominantSpeakerChanged,
-    getLocalParticipant,
     participantConnectionStatusChanged,
     participantJoined,
     participantLeft,
@@ -35,7 +34,10 @@ import {
     EMAIL_COMMAND,
     JITSI_CONFERENCE_URL_KEY
 } from './constants';
-import { _addLocalTracksToConference } from './functions';
+import {
+    _addLocalTracksToConference,
+    setLocalParticipantData
+} from './functions';
 
 import type { Dispatch } from 'redux';
 
@@ -132,22 +134,6 @@ function _addConferenceListeners(conference, dispatch) {
             id,
             email: data.value
         })));
-}
-
-/**
- * Sets the data for the local participant to the conference.
- *
- * @param {JitsiConference} conference - The JitsiConference instance.
- * @param {Object} state - The Redux state.
- * @returns {void}
- */
-function _setLocalParticipantData(conference, state) {
-    const { avatarID } = getLocalParticipant(state);
-
-    conference.removeCommand(AVATAR_ID_COMMAND);
-    conference.sendCommand(AVATAR_ID_COMMAND, {
-        value: avatarID
-    });
 }
 
 /**
@@ -289,7 +275,7 @@ export function createConference() {
 
         _addConferenceListeners(conference, dispatch);
 
-        _setLocalParticipantData(conference, state);
+        setLocalParticipantData(conference, state);
 
         conference.join(password);
     };

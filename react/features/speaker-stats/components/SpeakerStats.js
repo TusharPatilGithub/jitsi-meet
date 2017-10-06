@@ -5,6 +5,7 @@ import React, { Component } from 'react';
 
 import { Dialog } from '../../base/dialog';
 import { translate } from '../../base/i18n';
+import { getLocalDisplayName } from '../../base/participants';
 
 import SpeakerStatsItem from './SpeakerStatsItem';
 import SpeakerStatsLabels from './SpeakerStatsLabels';
@@ -130,7 +131,7 @@ class SpeakerStats extends Component {
             const { t } = this.props;
             const meString = t('me');
 
-            displayName = APP.settings.getDisplayName();
+            displayName = getLocalDisplayName(APP.store.getState());
             displayName = displayName ? `${displayName} (${meString})`
                 : meString;
         } else {

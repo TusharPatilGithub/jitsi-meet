@@ -30,7 +30,8 @@ import {
     toggleAudioOnly,
     EMAIL_COMMAND,
     lockStateChanged,
-    p2pStatusChanged
+    p2pStatusChanged,
+    setLocalParticipantData
 } from './react/features/base/conference';
 import { updateDeviceList } from './react/features/base/devices';
 import {
@@ -47,6 +48,8 @@ import {
 } from './react/features/base/media';
 import {
     dominantSpeakerChanged,
+    getDisplayName as getDisplayNameFromState,
+    getLocalParticipant,
     localParticipantConnectionStatusChanged,
     localParticipantRoleChanged,
     MAX_DISPLAY_NAME_LENGTH,
@@ -147,42 +150,12 @@ function sendData(command, value) {
 }
 
 /**
- * Sets up initially the properties of the local participant - email, avatarID,
- * avatarURL, displayName, etc.
- */
-function _setupLocalParticipantProperties() {
-    const email = APP.settings.getEmail();
-    email && sendData(commands.EMAIL, email);
-
-    const avatarUrl = APP.settings.getAvatarUrl();
-    avatarUrl && sendData(commands.AVATAR_URL, avatarUrl);
-
-    if (!email && !avatarUrl) {
-        sendData(commands.AVATAR_ID, APP.settings.getAvatarId());
-    }
-
-    let nick = APP.settings.getDisplayName();
-    if (config.useNicks && !nick) {
-        nick = APP.UI.askForNickname();
-        APP.settings.setDisplayName(nick);
-    }
-    nick && room.setDisplayName(nick);
-}
-
-/**
  * Get user nickname by user id.
  * @param {string} id user id
  * @returns {string?} user nickname or undefined if user is unknown.
  */
 function getDisplayName(id) {
-    if (APP.conference.isLocalId(id)) {
-        return APP.settings.getDisplayName();
-    }
-
-    let participant = room.getParticipantById(id);
-    if (participant && participant.getDisplayName()) {
-        return participant.getDisplayName();
-    }
+    return getDisplayNameFromState(APP.store.getState(), id);
 }
 
 /**
@@ -1161,7 +1134,7 @@ export default {
         this._setLocalAudioVideoStreams(localTracks);
         this._room = room; // FIXME do not use this
 
-        _setupLocalParticipantProperties();
+        setLocalParticipantData(room, APP.store.getState());
 
         this._setupListeners();
     },
@@ -2417,13 +2390,15 @@ export default {
      * @param email {string} the new email
      */
     changeLocalEmail(email = '') {
+        const localParticipant = getLocalParticipant(APP.store.getState());
+
         email = String(email).trim();
 
-        if (email === APP.settings.getEmail()) {
+        if (email === localParticipant.email) {
             return;
         }
 
-        const localId = room ? room.myUserId() : undefined;
+        const localId = localParticipant.id;
 
         APP.store.dispatch(participantUpdated({
             id: localId,
@@ -2441,22 +2416,22 @@ export default {
      * @param url {string} the new url
      */
     changeLocalAvatarUrl(url = '') {
+        const { avatarURL, id } = getLocalParticipant(APP.store.getState());
+
         url = String(url).trim();
 
-        if (url === APP.settings.getAvatarUrl()) {
+        if (url === avatarURL) {
             return;
         }
 
-        const localId = room ? room.myUserId() : undefined;
-
         APP.store.dispatch(participantUpdated({
-            id: localId,
+            id,
             local: true,
             avatarURL: url
         }));
 
         APP.settings.setAvatarUrl(url);
-        APP.UI.setUserAvatarUrl(localId, url);
+        APP.UI.setUserAvatarUrl(id, url);
         sendData(commands.AVATAR_URL, url);
     },
 
@@ -2498,13 +2473,14 @@ export default {
     changeLocalDisplayName(nickname = '') {
         const formattedNickname
             = nickname.trim().substr(0, MAX_DISPLAY_NAME_LENGTH);
+        const { id, name } = getLocalParticipant(APP.store.getState());
 
-        if (formattedNickname === APP.settings.getDisplayName()) {
+        if (formattedNickname === name) {
             return;
         }
 
         APP.store.dispatch(participantUpdated({
-            id: this.getMyUserId(),
+            id,
             local: true,
             name: formattedNickname
         }));
@@ -2512,7 +2488,7 @@ export default {
         APP.settings.setDisplayName(formattedNickname);
         if (room) {
             room.setDisplayName(formattedNickname);
-            APP.UI.changeDisplayName(this.getMyUserId(), formattedNickname);
+            APP.UI.changeDisplayName(id, formattedNickname);
         }
     },
 
