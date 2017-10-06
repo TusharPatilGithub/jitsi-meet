@@ -12,6 +12,7 @@ import { LIB_INIT_ERROR } from '../lib-jitsi-meet';
 import {
     getLocalParticipant,
     getParticipantCount,
+    LOCAL_PARTICIPANT_DEFAULT_NAME,
     PARTICIPANT_JOINED,
     participantUpdated
 } from '../participants';
@@ -212,9 +213,7 @@ function _resetLocalParticipantOverrides({ dispatch, getState }, caller) {
             newProperties.avatarURL = undefined;
         }
         if (name === localParticipant.name) {
-            // FIXME use constant - this duplicates logic handling the event
-            // where the local participant joins for the first time.
-            newProperties.name = 'me';
+            newProperties.name = LOCAL_PARTICIPANT_DEFAULT_NAME;
         }
         if (email === localParticipant.email) {
             newProperties.email = undefined;
