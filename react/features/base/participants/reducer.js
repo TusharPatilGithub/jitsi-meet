@@ -100,7 +100,12 @@ function _participant(state, action) {
         // name
         if (!name) {
             // TODO Get the from config and/or localized.
-            name = local ? LOCAL_PARTICIPANT_DEFAULT_NAME : 'Fellow Jitster';
+            // On web default value is handled in:
+            // conference.js getParticipantDisplayName
+            if (typeof APP === 'undefined') {
+                name
+                    = local ? LOCAL_PARTICIPANT_DEFAULT_NAME : 'Fellow Jitster';
+            }
         }
 
         return {
