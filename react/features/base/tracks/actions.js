@@ -1,3 +1,4 @@
+import { sendEvent } from '../../analytics';
 import { JitsiTrackErrors, JitsiTrackEvents } from '../lib-jitsi-meet';
 import {
     CAMERA_FACING_MODE,
@@ -14,6 +15,8 @@ import {
     TRACK_UPDATED
 } from './actionTypes';
 import { createLocalTracksF } from './functions';
+
+const logger = require('jitsi-meet-logger').getLogger(__filename);
 
 /**
  * Requests the creating of the desired media type tracks. Desire is expressed
@@ -154,6 +157,11 @@ export function replaceLocalTrack(oldTrack, newTrack, conference) {
                                 = newTrack.isVideoTrack()
                                     ? setVideoMuted
                                     : setAudioMuted;
+
+                            sendEvent(
+                                `replacetrack.${newTrack.getType()}.mute`);
+                            logger.log(
+                                `Replace ${newTrack.getType()} track - mute`);
 
                             return dispatch(setMuted(newTrack.isMuted()));
                         }

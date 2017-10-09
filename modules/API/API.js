@@ -1,10 +1,13 @@
 // @flow
 
 import * as JitsiMeetConferenceEvents from '../../ConferenceEvents';
+import { sendEvent } from '../../react/features/analytics';
 import { parseJWTFromURLParams } from '../../react/features/jwt';
 import { getJitsiMeetTransport } from '../transport';
 
 import { API_ID } from './constants';
+
+const logger = require('jitsi-meet-logger').getLogger(__filename);
 
 declare var APP: Object;
 
@@ -52,9 +55,13 @@ function initCommands() {
         'display-name':
             APP.conference.changeLocalDisplayName.bind(APP.conference),
         'toggle-audio': () => {
+            sendEvent('api.toggle.audio');
+            logger.log('Audio toggle: API command received');
             APP.conference.toggleAudioMuted(false /* no UI */);
         },
         'toggle-video': () => {
+            sendEvent('api.toggle.video');
+            logger.log('Video toggle: API command received');
             APP.conference.toggleVideoMuted(false /* no UI */);
         },
         'toggle-film-strip': APP.UI.toggleFilmstrip,
