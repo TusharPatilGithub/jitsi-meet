@@ -75,39 +75,6 @@ export function getAvatarURL({ avatarID, avatarURL, email, id }: {
 }
 
 /**
- * Returns display name of the participant identified by the given ID from Redux
- * state.
- *
- * @param {(Function|Object|Participant[])} stateOrGetState - The redux state
- * features/base/participants, the (whole) redux state, or redux's
- * {@code getState} function to be used to retrieve the
- * features/base/participants state.
- * @param {string} id - The participant's id for whom the display name is to be
- * obtained.
- * @returns {(string|undefined)}
- */
-export function getDisplayName(stateOrGetState: Object | Function, id: string) {
-    const participant = getParticipantById(stateOrGetState, id);
-
-    return participant && participant.name;
-}
-
-/**
- * Get's display name of the local participant.
- *
- * @param {(Function|Object|Participant[])} stateOrGetState - The redux state
- * features/base/participants, the (whole) redux state, or redux's
- * {@code getState} function to be used to retrieve the
- * features/base/participants state.
- * @returns {(string|undefined)}
- */
-export function getLocalDisplayName(stateOrGetState: Object | Function) {
-    const localParticipant = getLocalParticipant(stateOrGetState);
-
-    return localParticipant && localParticipant.name;
-}
-
-/**
  * Returns local participant from Redux state.
  *
  * @param {(Function|Object|Participant[])} stateOrGetState - The redux state

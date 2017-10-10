@@ -8,7 +8,6 @@ import {
     WEBRTC_NOT_READY,
     WEBRTC_NOT_SUPPORTED
 } from '../lib-jitsi-meet';
-import { getLocalDisplayName } from '../participants';
 import UIEvents from '../../../../service/UI/UIEvents';
 
 declare var APP: Object;
@@ -74,7 +73,7 @@ export function connect() {
             APP.keyboardshortcut.init();
 
             if (config.requireDisplayName
-                    && !getLocalDisplayName(APP.store.getState())) {
+                    && !APP.conference.getLocalDisplayName()) {
                 APP.UI.promptDisplayName();
             }
         })

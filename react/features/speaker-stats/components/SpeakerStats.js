@@ -1,12 +1,12 @@
-/* global APP, interfaceConfig */
+/* global interfaceConfig */
 
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
+import { connect as reactReduxConnect } from 'react-redux';
 
 import { Dialog } from '../../base/dialog';
 import { translate } from '../../base/i18n';
-import { getLocalDisplayName } from '../../base/participants';
-
+import { getLocalParticipant } from '../../base/participants';
 import SpeakerStatsItem from './SpeakerStatsItem';
 import SpeakerStatsLabels from './SpeakerStatsLabels';
 
@@ -22,6 +22,12 @@ class SpeakerStats extends Component {
      * @static
      */
     static propTypes = {
+        /**
+         * The display name for the local participant obtained from the Redux
+         * store.
+         */
+        _localDisplayName: PropTypes.string,
+
         /**
          * The JitsiConference from which stats will be pulled.
          */
@@ -131,7 +137,7 @@ class SpeakerStats extends Component {
             const { t } = this.props;
             const meString = t('me');
 
-            displayName = getLocalDisplayName(APP.store.getState());
+            displayName = this.props._localDisplayName;
             displayName = displayName ? `${displayName} (${meString})`
                 : meString;
         } else {
@@ -150,4 +156,26 @@ class SpeakerStats extends Component {
     }
 }
 
-export default translate(SpeakerStats);
+/**
+ * Maps (parts of) the Redux state to the associated SpeakerStats's props.
+ *
+ * @param {Object} state - The Redux state.
+ * @private
+ * @returns {{
+ *     _localDisplayName: string?
+ * }}
+ */
+function _mapStateToProps(state) {
+    const localParticipant = getLocalParticipant(state);
+
+    return {
+        /**
+         * The local display name.
+         * @private
+         * @type {string|undefined}
+         */
+        _localDisplayName: localParticipant && localParticipant.name
+    };
+}
+
+export default translate(reactReduxConnect(_mapStateToProps)(SpeakerStats));

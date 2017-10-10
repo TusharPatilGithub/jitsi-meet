@@ -48,8 +48,8 @@ import {
 } from './react/features/base/media';
 import {
     dominantSpeakerChanged,
-    getDisplayName as getDisplayNameFromState,
     getLocalParticipant,
+    getParticipantById,
     localParticipantConnectionStatusChanged,
     localParticipantRoleChanged,
     MAX_DISPLAY_NAME_LENGTH,
@@ -155,7 +155,9 @@ function sendData(command, value) {
  * @returns {string?} user nickname or undefined if user is unknown.
  */
 function getDisplayName(id) {
-    return getDisplayNameFromState(APP.store.getState(), id);
+    const participant = getParticipantById(APP.store.getState(), id);
+
+    return participant && participant.name;
 }
 
 /**
@@ -960,6 +962,13 @@ export default {
      */
     isConnectionInterrupted() {
         return this._room.isConnectionInterrupted();
+    },
+    /**
+     * Obtains the local display name.
+     * @returns {string|undefined}
+     */
+    getLocalDisplayName() {
+        return getDisplayName(this.getMyUserId());
     },
     /**
      * Finds JitsiParticipant for given id.

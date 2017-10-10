@@ -9,9 +9,6 @@ import UIEvents from '../../../../service/UI/UIEvents';
 
 import { smileys } from './smileys';
 
-import {
-    getLocalDisplayName
-} from '../../../../react/features/base/participants';
 import { dockToolbox, setSubject } from '../../../../react/features/toolbox';
 
 let unreadMessages = 0;
@@ -190,7 +187,7 @@ var Chat = {
      */
     init (eventEmitter) {
         initHTML();
-        if (getLocalDisplayName(APP.store.getState())) {
+        if (APP.conference.getLocalDisplayName()) {
             Chat.setChatConversationMode(true);
         }
 
@@ -247,7 +244,7 @@ var Chat = {
 
                 // if we are in conversation mode focus on the text input
                 // if we are not, focus on the display name input
-                if (getLocalDisplayName(APP.store.getState()))
+                if (APP.conference.getLocalDisplayName())
                     deferredFocus('usermsg');
                 else
                     deferredFocus('nickinput');

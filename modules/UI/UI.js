@@ -42,10 +42,7 @@ import {
     maybeShowNotificationWithDoNotDisplay,
     setNotificationsEnabled
 } from '../../react/features/notifications';
-import {
-    getLocalDisplayName,
-    getLocalParticipant
-} from '../../react/features/base/participants';
+import { getLocalParticipant } from '../../react/features/base/participants';
 
 var EventEmitter = require("events");
 UI.messageHandler = messageHandler;
@@ -238,7 +235,7 @@ UI.mucJoined = function () {
     // set.
     UI.changeDisplayName(
         'localVideoContainer',
-        getLocalDisplayName(APP.store.getState()));
+        APP.conference.getLocalDisplayName());
 };
 
 /***
